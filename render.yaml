@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: whatsapp-movie-night-bot
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TMDB_API_KEY
+        sync: false
+      - key: GROUP_JID
+        sync: false
+      - key: DEADLINE_TIMEZONE
+        value: Europe/Berlin
+      - key: DEADLINE_DAY
+        value: 5
+      - key: DEADLINE_HOUR
+        value: 12
+      - key: PORT
+        value: 3000
+    healthCheckPath: /health
