@@ -17,7 +17,7 @@ export async function suggestCommand(
 
   if (!movieTitle) {
     return {
-      text: 'Please provide a movie title. Example: !suggest Inception',
+      text: 'Please provide a movie title. Example: /suggest Inception',
     };
   }
 
@@ -36,7 +36,7 @@ export async function suggestCommand(
     const response = `Found: *${movie.title}* (${movie.year}) ⭐ ${movie.rating}
 ${movie.overview}
 
-Reply "yes" to confirm or "!suggest <different movie>" to try again.`;
+Reply "yes" to confirm or "/suggest <different movie>" to try again.`;
 
     return {
       text: response,

@@ -4,10 +4,10 @@ A WhatsApp bot for weekly Friday movie nights. Collects movie suggestions throug
 
 ## Features
 
-- **!suggest \<movie\>** - Suggest a movie (auto-searches TMDB)
-- **!list** - View current suggestions
-- **!status** - Check time until the poll
-- **!help** - Show available commands
+- **/suggest \<movie\>** - Suggest a movie (auto-searches TMDB)
+- **/list** - View current suggestions
+- **/status** - Check time until the poll
+- **/help** - Show available commands
 - Automatic poll creation every Friday at 12:00 CET
 - Movie details include title, year, rating, description, poster, and IMDB link
 
@@ -61,16 +61,16 @@ A WhatsApp bot for weekly Friday movie nights. Collects movie suggestions throug
 
 | Command | Description |
 |---------|-------------|
-| `!suggest <title>` | Search for a movie and suggest it |
-| `!list` | Show all current suggestions |
-| `!status` | Show deadline and time remaining |
-| `!help` | Show help message |
+| `/suggest <title>` | Search for a movie and suggest it |
+| `/list` | Show all current suggestions |
+| `/status` | Show deadline and time remaining |
+| `/help` | Show help message |
 
 After suggesting a movie, reply **"yes"** to confirm your selection.
 
 ## How It Works
 
-1. Users suggest movies throughout the week using `!suggest`
+1. Users suggest movies throughout the week using `/suggest`
 2. The bot searches TMDB and shows the best match
 3. Users confirm their suggestion by replying "yes"
 4. At Friday 12:00 CET, the bot posts a poll with all suggestions

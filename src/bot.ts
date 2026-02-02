@@ -181,7 +181,7 @@ export async function sendPoll(): Promise<void> {
   if (!pollData) {
     await sendMessage(
       groupJid,
-      'No movie suggestions this week! Use !suggest <movie title> to add suggestions for next week.'
+      'No movie suggestions this week! Use /suggest <movie title> to add suggestions for next week.'
     );
     return;
   }

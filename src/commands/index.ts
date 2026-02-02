@@ -4,7 +4,7 @@ import { statusCommand } from './status';
 import { listCommand } from './list';
 import { suggestCommand, handleConfirmation } from './suggest';
 
-const COMMAND_PREFIX = '!';
+const COMMAND_PREFIX = '/';
 
 export interface ParsedCommand {
   command: string;

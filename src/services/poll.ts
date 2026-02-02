@@ -54,7 +54,7 @@ export function formatSuggestionsList(): string {
   const suggestions = store.getAllSuggestions();
 
   if (suggestions.length === 0) {
-    return 'No suggestions yet. Use !suggest <movie title> to add one!';
+    return 'No suggestions yet. Use /suggest <movie title> to add one!';
   }
 
   const lines = [`Current suggestions (${suggestions.length}):`];
