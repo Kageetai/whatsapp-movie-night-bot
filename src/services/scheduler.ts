@@ -1,4 +1,4 @@
-import cron from 'node-cron';
+import cron, { ScheduledTask } from 'node-cron';
 import { store } from '../store';
 
 export interface SchedulerConfig {
@@ -10,7 +10,7 @@ export interface SchedulerConfig {
 export class Scheduler {
   private config: SchedulerConfig;
   private pollCallback: (() => Promise<void>) | null = null;
-  private cronJob: cron.ScheduledTask | null = null;
+  private cronJob: ScheduledTask | null = null;
 
   constructor(config: SchedulerConfig) {
     this.config = config;
@@ -33,7 +33,6 @@ export class Scheduler {
       },
       {
         timezone,
-        scheduled: true,
       }
     );
 
@@ -46,7 +45,6 @@ export class Scheduler {
       },
       {
         timezone,
-        scheduled: true,
       }
     );
 
