@@ -11,6 +11,7 @@ import pino from 'pino';
 import { handleMessage } from './commands';
 import { createPollData } from './services/poll';
 import { Config } from './types';
+import { store } from './store';
 
 let sock: WASocket | null = null;
 let groupJid: string | null = null;
@@ -25,6 +26,9 @@ function delay(ms: number): Promise<void> {
 
 export async function initBot(config: Config): Promise<WASocket> {
   groupJid = config.groupJid;
+
+  // Load persisted suggestions from storage
+  store.load();
 
   const { state, saveCreds } = await useMultiFileAuthState('./auth_info');
   const { version } = await fetchLatestBaileysVersion();
