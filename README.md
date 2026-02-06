@@ -76,23 +76,6 @@ After suggesting a movie, reply **"yes"** to confirm your selection.
 4. At Friday 12:00 CET, the bot posts a poll with all suggestions
 5. Suggestions reset automatically on Saturday at midnight
 
-## Deployment (Render)
-
-1. Push to GitHub
-2. Create a new Web Service on [Render](https://render.com)
-3. Connect your GitHub repo
-4. Render will use `render.yaml` for configuration
-5. Add environment variables in Render dashboard:
-   - `TMDB_API_KEY`
-   - `GROUP_JID`
-
-### Keep-Alive (Free Tier)
-
-Render's free tier sleeps after 15 minutes of inactivity. Set up [cron-job.org](https://cron-job.org) to ping your app:
-
-1. Create a cron job to GET `https://your-app.onrender.com/health` every 14 minutes
-2. Optionally, create another job to GET `/trigger-poll` at Friday 12:00 CET as a backup
-
 ## API Endpoints
 
 | Endpoint | Description |
