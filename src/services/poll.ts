@@ -62,8 +62,11 @@ export function formatSuggestionsList(): string {
   suggestions.forEach((suggestion, index) => {
     const { movie, suggestedBy } = suggestion;
     lines.push(
-      `${index + 1}. ${movie.title} (${movie.year}) - suggested by ${suggestedBy}`
+      `${index + 1}. ${movie.title} (${movie.year}) ⭐ ${movie.rating} - suggested by ${suggestedBy}`
     );
+    if (movie.imdbUrl) {
+      lines.push(`   ${movie.imdbUrl}`);
+    }
   });
 
   return lines.join('\n');
