@@ -8,7 +8,7 @@ export async function helpCommand(): Promise<CommandResponse> {
 /status - Time until poll
 /help - This message
 
-After suggesting a movie, reply "yes" to confirm your selection.`;
+Use /suggest again to change your suggestion.`;
 
   return { text: helpText };
 }

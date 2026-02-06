@@ -2,7 +2,7 @@ import { CommandResponse } from '../types';
 import { helpCommand } from './help';
 import { statusCommand } from './status';
 import { listCommand } from './list';
-import { suggestCommand, handleConfirmation } from './suggest';
+import { suggestCommand } from './suggest';
 
 const COMMAND_PREFIX = '/';
 
@@ -34,20 +34,11 @@ export function parseCommand(message: string): ParsedCommand | null {
   };
 }
 
-export function isConfirmation(message: string): boolean {
-  const normalized = message.trim().toLowerCase();
-  return normalized === 'yes' || normalized === 'y' || normalized === 'ja';
-}
-
 export async function handleMessage(
   message: string,
   senderJid: string,
   senderName: string
 ): Promise<CommandResponse | null> {
-  if (isConfirmation(message)) {
-    return handleConfirmation(senderJid, senderName);
-  }
-
   const parsed = parseCommand(message);
   if (!parsed) {
     return null;
