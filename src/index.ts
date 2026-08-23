@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { Config } from './types';
-import { initBot, sendPoll } from './bot';
+import { initBot, sendPoll, sendSuggestionReminder } from './bot';
 import { initTMDB } from './services/tmdb';
 import { initScheduler } from './services/scheduler';
 import { createServer } from './server';
@@ -41,13 +41,20 @@ async function main(): Promise<void> {
     await sendPoll();
   });
 
+  scheduler.onReminderTime(async () => {
+    console.log('Sending suggestion reminder...');
+    await sendSuggestionReminder();
+  });
+
   scheduler.start();
   console.log(`Next deadline: ${scheduler.getDeadlineString()}`);
   console.log(`Time remaining: ${scheduler.getTimeUntilDeadline()}`);
 
   createServer(config.port);
 
-  await initBot(config);
+  await initBot(config, async () => {
+    await scheduler.checkReminder();
+  });
 }
 
 main().catch((error) => {

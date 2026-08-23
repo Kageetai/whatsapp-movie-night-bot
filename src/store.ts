@@ -8,20 +8,24 @@ const DATA_FILE = path.join(DATA_DIR, 'suggestions.json');
 interface PersistedData {
   suggestions: [string, Suggestion][];
   locked: boolean;
+  reminderSentForDeadline?: string | null;
 }
 
-class SuggestionStore {
+export class SuggestionStore {
   private suggestions: Map<string, Suggestion> = new Map();
   private pendingSuggestions: Map<string, PendingSuggestion> = new Map();
   private locked: boolean = false;
+  private reminderSentForDeadline: string | null = null;
+
+  constructor(private dataFile: string = DATA_FILE) {}
 
   load(): void {
     try {
-      if (!fs.existsSync(DATA_FILE)) {
+      if (!fs.existsSync(this.dataFile)) {
         return;
       }
 
-      const raw = fs.readFileSync(DATA_FILE, 'utf-8');
+      const raw = fs.readFileSync(this.dataFile, 'utf-8');
       const data: PersistedData = JSON.parse(raw);
 
       this.suggestions = new Map(
@@ -31,6 +35,7 @@ class SuggestionStore {
         ])
       );
       this.locked = data.locked;
+      this.reminderSentForDeadline = data.reminderSentForDeadline || null;
 
       console.log(`Loaded ${this.suggestions.size} suggestions from storage`);
     } catch (error) {
@@ -40,16 +45,18 @@ class SuggestionStore {
 
   private save(): void {
     try {
-      if (!fs.existsSync(DATA_DIR)) {
-        fs.mkdirSync(DATA_DIR, { recursive: true });
+      const dataDirectory = path.dirname(this.dataFile);
+      if (!fs.existsSync(dataDirectory)) {
+        fs.mkdirSync(dataDirectory, { recursive: true });
       }
 
       const data: PersistedData = {
         suggestions: Array.from(this.suggestions.entries()),
         locked: this.locked,
+        reminderSentForDeadline: this.reminderSentForDeadline,
       };
 
-      fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+      fs.writeFileSync(this.dataFile, JSON.stringify(data, null, 2));
     } catch (error) {
       console.error('Failed to save suggestions to storage:', error);
     }
@@ -124,6 +131,15 @@ class SuggestionStore {
     return this.locked;
   }
 
+  wasReminderSentFor(deadline: Date): boolean {
+    return this.reminderSentForDeadline === deadline.toISOString();
+  }
+
+  markReminderSentFor(deadline: Date): void {
+    this.reminderSentForDeadline = deadline.toISOString();
+    this.save();
+  }
+
   lock(): void {
     this.locked = true;
     this.save();
@@ -138,6 +154,7 @@ class SuggestionStore {
     this.suggestions.clear();
     this.pendingSuggestions.clear();
     this.locked = false;
+    this.reminderSentForDeadline = null;
     this.save();
   }
 }

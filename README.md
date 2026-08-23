@@ -8,6 +8,7 @@ A WhatsApp bot for weekly Friday movie nights. Collects movie suggestions throug
 - **/list** - View current suggestions
 - **/status** - Check time until the poll
 - **/help** - Show available commands
+- One automatic reminder when no movies have been suggested within 24 hours of the deadline
 - Automatic poll creation every Friday at 12:00 CET
 - Movie details include title, year, rating, description, poster, and IMDB link
 
@@ -73,8 +74,9 @@ After suggesting a movie, reply **"yes"** to confirm your selection.
 1. Users suggest movies throughout the week using `/suggest`
 2. The bot searches TMDB and shows the best match
 3. Users confirm their suggestion by replying "yes"
-4. At Friday 12:00 CET, the bot posts a poll with all suggestions
-5. Suggestions reset automatically on Saturday at midnight
+4. If there are still no suggestions within 24 hours of the deadline, the bot sends one reminder
+5. At Friday 12:00 CET, the bot posts a poll with all suggestions
+6. Suggestions reset automatically on Saturday at midnight
 
 ## API Endpoints
 

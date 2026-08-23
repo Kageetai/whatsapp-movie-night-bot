@@ -23,7 +23,10 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function initBot(config: Config): Promise<WASocket> {
+export async function initBot(
+  config: Config,
+  onConnected?: () => Promise<void>
+): Promise<WASocket> {
   groupJid = config.groupJid;
 
   // Load persisted suggestions from storage
@@ -70,7 +73,7 @@ export async function initBot(config: Config): Promise<WASocket> {
         const delayMs = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
         console.log(`Reconnecting in ${delayMs / 1000}s (attempt ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
         await delay(delayMs);
-        initBot(config);
+        initBot(config, onConnected);
       } else if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
         console.error('Max reconnection attempts reached. Please restart the bot.');
       }
@@ -83,6 +86,14 @@ export async function initBot(config: Config): Promise<WASocket> {
         console.log(
           'No GROUP_JID configured. Bot will log group IDs when messages are received.'
         );
+      }
+
+      if (onConnected) {
+        try {
+          await onConnected();
+        } catch (error) {
+          console.error('Failed to check suggestion reminder:', error);
+        }
       }
     }
   });
@@ -168,6 +179,17 @@ export async function sendImageWithCaption(
     console.error('Failed to send image, sending text only:', error);
     await sendMessage(jid, caption);
   }
+}
+
+export async function sendSuggestionReminder(): Promise<void> {
+  if (!groupJid) {
+    throw new Error('No GROUP_JID configured, cannot send suggestion reminder');
+  }
+
+  await sendMessage(
+    groupJid,
+    '🎬 Reminder: There are still no movie suggestions, and the deadline is within 24 hours. Use /suggest <movie title> to add one!'
+  );
 }
 
 export async function sendPoll(): Promise<void> {
