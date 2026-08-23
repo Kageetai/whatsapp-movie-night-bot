@@ -89,7 +89,18 @@ export async function initBot(config: Config): Promise<WASocket> {
 
   sock.ev.on('messages.upsert', async (m) => {
     for (const msg of m.messages) {
-      if (!msg.message || msg.key.fromMe) continue;
+      if (!msg.message) continue;
+
+      const messageContent =
+        msg.message.conversation ||
+        msg.message.extendedTextMessage?.text ||
+        '';
+
+      if (!messageContent) continue;
+
+      // Commands sent from the linked WhatsApp account should be handled too,
+      // while ordinary self-sent messages and bot responses remain ignored.
+      if (msg.key.fromMe && !messageContent.trim().startsWith('/')) continue;
 
       const remoteJid = msg.key.remoteJid;
       if (!remoteJid) continue;
@@ -106,13 +117,6 @@ export async function initBot(config: Config): Promise<WASocket> {
       } else {
         continue;
       }
-
-      const messageContent =
-        msg.message.conversation ||
-        msg.message.extendedTextMessage?.text ||
-        '';
-
-      if (!messageContent) continue;
 
       const senderJid = msg.key.participant || msg.key.remoteJid || '';
       const senderName = msg.pushName || 'Unknown';
