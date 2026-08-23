@@ -2,7 +2,6 @@ import makeWASocket, {
   DisconnectReason,
   useMultiFileAuthState,
   WASocket,
-  fetchLatestBaileysVersion,
   makeCacheableSignalKeyStore,
 } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
@@ -31,20 +30,17 @@ export async function initBot(config: Config): Promise<WASocket> {
   store.load();
 
   const { state, saveCreds } = await useMultiFileAuthState('./auth_info');
-  const { version } = await fetchLatestBaileysVersion();
-
-  console.log(`Using WA version: ${version.join('.')}`);
 
   sock = makeWASocket({
     auth: {
       creds: state.creds,
       keys: makeCacheableSignalKeyStore(state.keys, logger),
     },
-    version,
     printQRInTerminal: false,
     logger,
     browser: ['Movie Night Bot', 'Chrome', '120.0.0'],
     syncFullHistory: false,
+    shouldSyncHistoryMessage: () => false,
     generateHighQualityLinkPreview: false,
   });
 

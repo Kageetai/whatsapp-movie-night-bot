@@ -4,19 +4,21 @@ See `README.md` for general project documentation, setup, and usage.
 
 ## Critical Technical Details
 
-### Baileys Connection Fix
-The bot uses specific Baileys settings required for stable WhatsApp connection. Without these, you get 405 "Method Not Allowed" errors:
+### Baileys Connection Compatibility
+Pin Baileys to an exact release and let that installed release select its bundled WhatsApp protocol version. Do not call `fetchLatestBaileysVersion()`: it reads the version from Baileys' `master` branch and can combine a new protocol version with older library code.
+
+The bot also skips history synchronization because it only processes new group messages:
 
 ```typescript
 // src/bot.ts - DO NOT remove these
-const { version } = await fetchLatestBaileysVersion();
 sock = makeWASocket({
   auth: {
     creds: state.creds,
     keys: makeCacheableSignalKeyStore(state.keys, logger),  // Required
   },
-  version,  // Required - fetched dynamically
-  browser: ['Movie Night Bot', 'Chrome', '120.0.0'],  // Required
+  browser: ['Movie Night Bot', 'Chrome', '120.0.0'],
+  syncFullHistory: false,
+  shouldSyncHistoryMessage: () => false,
 });
 ```
 
