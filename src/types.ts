@@ -26,6 +26,7 @@ export interface PendingSuggestion {
 export interface Config {
   tmdbApiKey: string;
   groupJid: string;
+  alertEmailTo?: string;
   deadlineTimezone: string;
   deadlineDay: number;
   deadlineHour: number;

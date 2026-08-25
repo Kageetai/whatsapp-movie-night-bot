@@ -39,6 +39,7 @@ A WhatsApp bot for weekly Friday movie nights. Collects movie suggestions throug
    ```bash
    TMDB_API_KEY=your_tmdb_api_key
    GROUP_JID=                           # Leave empty initially
+   ALERT_EMAIL_TO=you@example.com       # Alert when WhatsApp requires re-pairing
    DEADLINE_TIMEZONE=Europe/Berlin
    DEADLINE_DAY=5                       # 0=Sunday, 5=Friday
    DEADLINE_HOUR=12
@@ -89,6 +90,12 @@ After suggesting a movie, reply **"yes"** to confirm your selection.
 ## Session Persistence
 
 The WhatsApp session is stored in `auth_info/`. On Render's free tier, this directory is ephemeral. You'll need to re-scan the QR code after each deploy.
+
+If WhatsApp removes the linked-device session, the bot prints a prominent
+re-pairing warning and sends one email per running process to `ALERT_EMAIL_TO`.
+Email is delivered through the server's local `sendmail` installation and no
+message is sent to the WhatsApp group. Set `ALERT_EMAIL_FROM` only if you need
+to override the default local sender address.
 
 For persistent sessions, consider:
 - Render's paid tier with persistent disk

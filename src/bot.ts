@@ -11,10 +11,12 @@ import { handleMessage } from './commands';
 import { createPollData } from './services/poll';
 import { Config } from './types';
 import { store } from './store';
+import { sendDeviceRemovedEmail } from './services/alerts';
 
 let sock: WASocket | null = null;
 let groupJid: string | null = null;
 let reconnectAttempts = 0;
+let deviceRemovedAlertSent = false;
 const MAX_RECONNECT_ATTEMPTS = 5;
 
 const logger = pino({ level: 'warn' });
@@ -67,6 +69,33 @@ export async function initBot(
         ', reconnecting:',
         shouldReconnect
       );
+
+      if (!shouldReconnect && !deviceRemovedAlertSent) {
+        deviceRemovedAlertSent = true;
+        console.error(
+          [
+            '',
+            '============================================================',
+            '🤖 MOVIE NIGHT BOT OFFLINE — WHATSAPP RE-PAIR REQUIRED',
+            'WhatsApp removed the linked-device session (status 401).',
+            'The bot cannot respond until auth_info is replaced and a new QR code is scanned.',
+            '============================================================',
+          ].join('\n')
+        );
+
+        if (!config.alertEmailTo) {
+          console.error(
+            'Email alert not sent: ALERT_EMAIL_TO is not configured.'
+          );
+        } else {
+          try {
+            await sendDeviceRemovedEmail(config.alertEmailTo);
+            console.log(`Offline alert email sent to ${config.alertEmailTo}`);
+          } catch (error) {
+            console.error('Failed to send offline alert email:', error);
+          }
+        }
+      }
 
       if (shouldReconnect && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
         reconnectAttempts++;

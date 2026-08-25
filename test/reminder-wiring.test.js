@@ -2,12 +2,14 @@ const assert = require('node:assert/strict');
 const Module = require('node:module');
 const test = require('node:test');
 
-test('startup wires scheduled and reconnect reminder checks to WhatsApp', async (t) => {
+test('startup wires reminders and the offline alert recipient to WhatsApp', async (t) => {
   const originalLoad = Module._load;
   const originalApiKey = process.env.TMDB_API_KEY;
+  const originalAlertEmailTo = process.env.ALERT_EMAIL_TO;
   let reminderCallback;
   let reminderChecks = 0;
   let remindersSent = 0;
+  let botConfig;
 
   const fakeScheduler = {
     onPollTime() {},
@@ -29,7 +31,8 @@ test('startup wires scheduled and reconnect reminder checks to WhatsApp', async 
   Module._load = function loadWithFakes(request, parent, isMain) {
     if (request === './bot') {
       return {
-        async initBot(_config, onConnected) {
+        async initBot(config, onConnected) {
+          botConfig = config;
           await onConnected?.();
           return {};
         },
@@ -53,6 +56,7 @@ test('startup wires scheduled and reconnect reminder checks to WhatsApp', async 
   };
 
   process.env.TMDB_API_KEY = 'test-key';
+  process.env.ALERT_EMAIL_TO = 'owner@example.com';
   const indexModulePath = require.resolve('../dist/index.js');
   t.after(() => {
     Module._load = originalLoad;
@@ -62,6 +66,11 @@ test('startup wires scheduled and reconnect reminder checks to WhatsApp', async 
     } else {
       process.env.TMDB_API_KEY = originalApiKey;
     }
+    if (originalAlertEmailTo === undefined) {
+      delete process.env.ALERT_EMAIL_TO;
+    } else {
+      process.env.ALERT_EMAIL_TO = originalAlertEmailTo;
+    }
   });
 
   require(indexModulePath);
@@ -70,4 +79,5 @@ test('startup wires scheduled and reconnect reminder checks to WhatsApp', async 
 
   assert.equal(reminderChecks, 1);
   assert.equal(remindersSent, 1);
+  assert.equal(botConfig.alertEmailTo, 'owner@example.com');
 });

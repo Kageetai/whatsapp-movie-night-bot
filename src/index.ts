@@ -15,6 +15,7 @@ function loadConfig(): Config {
   return {
     tmdbApiKey,
     groupJid: process.env.GROUP_JID || '',
+    alertEmailTo: process.env.ALERT_EMAIL_TO || '',
     deadlineTimezone: process.env.DEADLINE_TIMEZONE || 'Europe/Berlin',
     deadlineDay: parseInt(process.env.DEADLINE_DAY || '5', 10),
     deadlineHour: parseInt(process.env.DEADLINE_HOUR || '12', 10),
