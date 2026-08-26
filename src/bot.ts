@@ -12,6 +12,7 @@ import { createPollData } from './services/poll';
 import { Config } from './types';
 import { store } from './store';
 import { sendDeviceRemovedEmail } from './services/alerts';
+import { suppressSignalSessionLogs } from './services/logging';
 
 let sock: WASocket | null = null;
 let groupJid: string | null = null;
@@ -29,6 +30,7 @@ export async function initBot(
   config: Config,
   onConnected?: () => Promise<void>
 ): Promise<WASocket> {
+  suppressSignalSessionLogs();
   groupJid = config.groupJid;
 
   // Load persisted suggestions from storage
