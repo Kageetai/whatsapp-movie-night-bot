@@ -7,7 +7,7 @@ function validateHeaderValue(name: string, value: string): void {
   }
 }
 
-function buildDeviceRemovedEmail(recipient: string): string {
+function buildAlertEmail(recipient: string, subject: string, body: string[]): string {
   const sender =
     process.env.ALERT_EMAIL_FROM ||
     `${userInfo().username}@${hostname()}`;
@@ -18,13 +18,12 @@ function buildDeviceRemovedEmail(recipient: string): string {
   return [
     `To: ${recipient}`,
     `From: Movie Night Bot <${sender}>`,
-    'Subject: [Movie Night Bot] WhatsApp re-pair required',
+    `Subject: [Movie Night Bot] ${subject}`,
     'Content-Type: text/plain; charset=UTF-8',
     '',
     'This is an automated alert from the Movie Night Bot.',
     '',
-    'WhatsApp removed the bot\'s linked-device session, so the bot is offline',
-    'and cannot respond to group messages. Re-pair it by scanning a new QR code.',
+    ...body,
     '',
     `Detected at: ${new Date().toISOString()}`,
     '',
@@ -32,8 +31,22 @@ function buildDeviceRemovedEmail(recipient: string): string {
 }
 
 export function sendDeviceRemovedEmail(recipient: string): Promise<void> {
+  return sendEmail(buildAlertEmail(recipient, 'WhatsApp re-pair required', [
+    'WhatsApp removed the bot\'s linked-device session, so the bot is offline',
+    'and cannot respond to group messages. Re-pair it by scanning a new QR code.',
+  ]));
+}
+
+export function sendAuthStorageWarningEmail(recipient: string, bytes: number): Promise<void> {
+  return sendEmail(buildAlertEmail(recipient, 'WhatsApp auth storage warning', [
+    `auth_info contains ${(bytes / 1024 / 1024).toFixed(1)} MiB of files (warning threshold: 10 MiB).`,
+    'Check disk usage on the bot server. No files have been deleted.',
+    'Do not delete session files by age; they contain required encryption state.',
+  ]));
+}
+
+function sendEmail(message: string): Promise<void> {
   const sendmailPath = process.env.SENDMAIL_PATH || '/usr/sbin/sendmail';
-  const message = buildDeviceRemovedEmail(recipient);
 
   return new Promise((resolve, reject) => {
     const sendmail = spawn(sendmailPath, ['-t', '-oi']);

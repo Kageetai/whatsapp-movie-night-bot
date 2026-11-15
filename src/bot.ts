@@ -3,6 +3,7 @@ import makeWASocket, {
   useMultiFileAuthState,
   WASocket,
   makeCacheableSignalKeyStore,
+  jidNormalizedUser,
 } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import * as qrcode from 'qrcode-terminal';
@@ -48,6 +49,18 @@ export async function initBot(
     browser: ['Movie Night Bot', 'Chrome', '120.0.0'],
     syncFullHistory: false,
     shouldSyncHistoryMessage: () => false,
+    shouldIgnoreJid: (jid) => {
+      if (!config.groupJid || jid === config.groupJid ||
+          ['@s.whatsapp.net', 'server@c.us', '0@c.us'].includes(jid)) {
+        return false;
+      }
+
+      // Own-device sync must remain available, including after first-time pairing.
+      const normalizedJid = jidNormalizedUser(jid);
+      return ![state.creds.me?.id, state.creds.me?.lid].some(
+        (ownJid) => ownJid && jidNormalizedUser(ownJid) === normalizedJid
+      );
+    },
     generateHighQualityLinkPreview: false,
   });
 

@@ -39,7 +39,7 @@ A WhatsApp bot for weekly Friday movie nights. Collects movie suggestions throug
    ```bash
    TMDB_API_KEY=your_tmdb_api_key
    GROUP_JID=                           # Leave empty initially
-   ALERT_EMAIL_TO=you@example.com       # Alert when WhatsApp requires re-pairing
+   ALERT_EMAIL_TO=you@example.com       # WhatsApp re-pairing and storage alerts
    DEADLINE_TIMEZONE=Europe/Berlin
    DEADLINE_DAY=5                       # 0=Sunday, 5=Friday
    DEADLINE_HOUR=12
@@ -90,6 +90,10 @@ After suggesting a movie, reply **"yes"** to confirm your selection.
 ## Session Persistence
 
 The WhatsApp session is stored in `auth_info/`. On Render's free tier, this directory is ephemeral. You'll need to re-scan the QR code after each deploy.
+
+When `GROUP_JID` is configured, unrelated incoming chats are ignored before decryption. The configured group, the linked account's own devices, and WhatsApp system traffic remain enabled. Without `GROUP_JID`, filtering stays disabled for group discovery. This reduces new encryption-session files from unrelated chats; it does not remove existing files or cap authentication storage. Check usage with `du -sh auth_info`; do not delete session files by age.
+
+At startup and hourly, the bot checks the total file size in `auth_info/`. At 10 MiB or more it logs a warning and emails `ALERT_EMAIL_TO` when configured. It alerts once until usage drops below the threshold, or the process restarts; failed emails are retried on the next check. This measures file contents, so disk usage reported by `du` can be higher. No files are deleted automatically.
 
 If WhatsApp removes the linked-device session, the bot prints a prominent
 re-pairing warning and sends one email per running process to `ALERT_EMAIL_TO`.

@@ -111,4 +111,11 @@ process.stdin.on('end', () => {
   assert.match(email, /^Subject: \[Movie Night Bot\] WhatsApp re-pair required$/m);
   assert.match(email, /automated alert from the Movie Night Bot/i);
   assert.equal((email.match(/---MESSAGE-END---/g) || []).length, 1);
+
+  const { sendAuthStorageWarningEmail } = require('../dist/services/alerts.js');
+  await sendAuthStorageWarningEmail('owner@example.com', 11 * 1024 * 1024);
+  const storageEmail = fs.readFileSync(outputPath, 'utf8');
+  assert.match(storageEmail, /^Subject: \[Movie Night Bot\] WhatsApp auth storage warning$/m);
+  assert.match(storageEmail, /auth_info contains 11\.0 MiB/);
+  assert.match(storageEmail, /No files have been deleted/);
 });

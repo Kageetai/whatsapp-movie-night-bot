@@ -3,7 +3,9 @@ const Module = require('node:module');
 const test = require('node:test');
 
 test('initBot uses the installed Baileys protocol and skips history synchronization', async (t) => {
+  const { jidNormalizedUser } = await import('@whiskeysockets/baileys');
   const originalLoad = Module._load;
+  const creds = {};
   let fetchLatestVersionCalls = 0;
   let socketOptions;
 
@@ -23,9 +25,10 @@ test('initBot uses the installed Baileys protocol and skips history synchronizat
           return fakeSocket;
         },
         DisconnectReason: { loggedOut: 401 },
+        jidNormalizedUser,
         async useMultiFileAuthState() {
           return {
-            state: { creds: {}, keys: {} },
+            state: { creds, keys: {} },
             async saveCreds() {},
           };
         },
@@ -70,4 +73,32 @@ test('initBot uses the installed Baileys protocol and skips history synchronizat
     false,
     'must not wait for history sync in a real-time command bot'
   );
+
+  assert.equal(typeof socketOptions.shouldIgnoreJid, 'function');
+  const ignore = socketOptions.shouldIgnoreJid;
+  assert.equal(ignore('123456789@g.us'), false);
+  assert.equal(ignore('987654321@g.us'), true);
+  assert.equal(ignore('491111111111@s.whatsapp.net'), true);
+  assert.equal(ignore('status@broadcast'), true);
+  assert.equal(ignore('123@newsletter'), true);
+  for (const jid of ['@s.whatsapp.net', 'server@c.us', '0@c.us']) {
+    assert.equal(ignore(jid), false, `must preserve system traffic from ${jid}`);
+  }
+
+  // Pairing supplies the account identity after the socket has been created.
+  creds.me = { id: '491234567890:7@s.whatsapp.net', lid: '100000000001:7@lid' };
+  for (const jid of [
+    '491234567890@s.whatsapp.net',
+    '491234567890:2@s.whatsapp.net',
+    '100000000001@lid',
+    '100000000001:3@lid',
+  ]) {
+    assert.equal(ignore(jid), false, `must preserve own-device traffic from ${jid}`);
+  }
+  assert.equal(ignore('100000000002:3@lid'), true);
+  assert.equal(ignore('491234567890@lid'), true, 'must distinguish identifier domains');
+
+  await initBot({ groupJid: '' });
+  assert.equal(socketOptions.shouldIgnoreJid('987654321@g.us'), false,
+    'must allow group discovery when no group is configured');
 });

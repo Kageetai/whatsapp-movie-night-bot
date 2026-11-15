@@ -10,6 +10,7 @@ test('startup wires reminders and the offline alert recipient to WhatsApp', asyn
   let reminderChecks = 0;
   let remindersSent = 0;
   let botConfig;
+  let storageAlertRecipient;
 
   const fakeScheduler = {
     onPollTime() {},
@@ -51,6 +52,9 @@ test('startup wires reminders and the offline alert recipient to WhatsApp', asyn
     if (request === './server') {
       return { createServer() {} };
     }
+    if (request === './services/auth-storage') {
+      return { startAuthStorageMonitor(recipient) { storageAlertRecipient = recipient; } };
+    }
 
     return originalLoad.call(this, request, parent, isMain);
   };
@@ -80,4 +84,5 @@ test('startup wires reminders and the offline alert recipient to WhatsApp', asyn
   assert.equal(reminderChecks, 1);
   assert.equal(remindersSent, 1);
   assert.equal(botConfig.alertEmailTo, 'owner@example.com');
+  assert.equal(storageAlertRecipient, 'owner@example.com');
 });

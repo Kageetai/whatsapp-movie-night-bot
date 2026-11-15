@@ -4,6 +4,7 @@ import { initBot, sendPoll, sendSuggestionReminder } from './bot';
 import { initTMDB } from './services/tmdb';
 import { initScheduler } from './services/scheduler';
 import { createServer } from './server';
+import { startAuthStorageMonitor } from './services/auth-storage';
 
 function loadConfig(): Config {
   const tmdbApiKey = process.env.TMDB_API_KEY;
@@ -56,6 +57,7 @@ async function main(): Promise<void> {
   await initBot(config, async () => {
     await scheduler.checkReminder();
   });
+  startAuthStorageMonitor(config.alertEmailTo);
 }
 
 main().catch((error) => {
