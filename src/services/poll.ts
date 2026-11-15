@@ -27,7 +27,7 @@ export function createPollData(): PollMessages | null {
   suggestions.forEach((suggestion, index) => {
     const { movie, suggestedBy } = suggestion;
     introLines.push(
-      `${index + 1}. *${movie.title}* (${movie.year}) - suggested by ${suggestedBy}`
+      `${index + 1}. *${movie.title}* (${movie.year}) ⭐ ${movie.rating} - suggested by ${suggestedBy}`
     );
     if (movie.imdbUrl) {
       introLines.push(`   ${movie.imdbUrl}`);
