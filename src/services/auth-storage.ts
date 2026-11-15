@@ -1,7 +1,10 @@
-import { readdir, stat } from 'node:fs/promises';
+import { stat } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { sendAuthStorageWarningEmail } from './alerts';
 
 const WARNING_BYTES = 10 * 1024 * 1024;
+const runFile = promisify(execFile);
 let warned = false;
 let checking = false;
 
@@ -9,20 +12,17 @@ export async function checkAuthStorage(recipient?: string): Promise<void> {
   if (checking) return;
   checking = true;
   try {
-    let bytes = 0;
-    const entries = await readdir('./auth_info', { withFileTypes: true }).catch((error) => {
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return [];
-      throw error;
-    });
-    for (const entry of entries) {
-      if (!entry.isFile()) continue;
-      try {
-        bytes += (await stat(`./auth_info/${entry.name}`)).size;
-      } catch (error) {
-        // Baileys can remove a key while the directory is being scanned.
-        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
-      }
+    try {
+      await stat('./auth_info');
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+      warned = false;
+      return;
     }
+    const { stdout } = await runFile('du', ['-sk', './auth_info']);
+    const match = /^(\d+)\s/.exec(stdout);
+    if (!match) throw new Error('Unexpected du output');
+    const bytes = Number(match[1]) * 1024;
     if (bytes < WARNING_BYTES) {
       warned = false;
       return;

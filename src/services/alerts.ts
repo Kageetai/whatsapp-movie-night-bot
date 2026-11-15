@@ -39,7 +39,7 @@ export function sendDeviceRemovedEmail(recipient: string): Promise<void> {
 
 export function sendAuthStorageWarningEmail(recipient: string, bytes: number): Promise<void> {
   return sendEmail(buildAlertEmail(recipient, 'WhatsApp auth storage warning', [
-    `auth_info contains ${(bytes / 1024 / 1024).toFixed(1)} MiB of files (warning threshold: 10 MiB).`,
+    `auth_info uses ${(bytes / 1024 / 1024).toFixed(1)} MiB of disk space (warning threshold: 10 MiB).`,
     'Check disk usage on the bot server. No files have been deleted.',
     'Do not delete session files by age; they contain required encryption state.',
   ]));

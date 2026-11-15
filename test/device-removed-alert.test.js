@@ -116,6 +116,6 @@ process.stdin.on('end', () => {
   await sendAuthStorageWarningEmail('owner@example.com', 11 * 1024 * 1024);
   const storageEmail = fs.readFileSync(outputPath, 'utf8');
   assert.match(storageEmail, /^Subject: \[Movie Night Bot\] WhatsApp auth storage warning$/m);
-  assert.match(storageEmail, /auth_info contains 11\.0 MiB/);
+  assert.match(storageEmail, /auth_info uses 11\.0 MiB of disk space/);
   assert.match(storageEmail, /No files have been deleted/);
 });
